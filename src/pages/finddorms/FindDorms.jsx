@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
@@ -7,9 +8,9 @@ import { Button } from "../../components/buttons/Button";
 import ListingBesideMapCards from "../../components/cards/ListingBesideMapCards";
 import backgroundImage from "../../assets/FindBg.png";
 import mapLogo from "../../assets/mapLogo.png";
+import logoImage from "../../assets/LogoImage.png";
+import housingMap from "../../assets/Housing-Map.png";
 import FilterHome from "../../components/filterhome/FilterHome"; // Import the new FilterHome component
-import covenantGarden from "../../assets/covenantGarden.png";
-import elpueblo from "../../assets/elpueblocondo.png";
 
 const FindDorms = () => {
   const [map, setMap] = useState(null);
@@ -70,11 +71,35 @@ const FindDorms = () => {
 
       setMap(mapInstance);
 
-      // Create a marker and set its initial position
-      const initialMarker = new mapboxgl.Marker()
+      const initialMarkerElement = document.createElement("div");
+      initialMarkerElement.style.width = "40px";
+      initialMarkerElement.style.height = "40px";
+      initialMarkerElement.style.backgroundImage = `url(${logoImage})`; // Use your mapLogo path here
+      initialMarkerElement.style.backgroundSize = "cover";
+      initialMarkerElement.style.cursor = "pointer";
+
+      const initialMarker = new mapboxgl.Marker(initialMarkerElement)
         .setLngLat(initialCenter)
         .addTo(mapInstance);
       setMarker(initialMarker);
+
+      fetch("http://localhost:5000/api/housing")
+        .then((response) => response.json())
+        .then((data) => {
+          data.forEach((house) => {
+            const markerElement = document.createElement("div");
+            markerElement.style.width = "35px";
+            markerElement.style.height = "35px";
+            markerElement.style.backgroundImage = `url(${housingMap})`;
+            markerElement.style.backgroundSize = "cover";
+            markerElement.style.cursor = "pointer";
+
+            new mapboxgl.Marker(markerElement)
+              .setLngLat([house.longitude, house.latitude])
+              .addTo(mapInstance);
+          });
+        })
+        .catch((error) => console.error("Error fetching housing data:", error));
     };
 
     if (!map) {
