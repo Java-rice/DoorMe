@@ -10,6 +10,7 @@ const port = 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
+
 // Connect to SQLite database
 const dbPath = path.resolve(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
@@ -29,11 +30,13 @@ db.serialize(() => {
     )
   `);
 
+  // Insert initial user
   const initialUser = `
     INSERT INTO users (fullName, email, university, socialStatus, phoneNumber, username, password)
     VALUES ('John Doe', 'john@example.com', 'Example University', 'Student', '+63 999 999 9999', 'john_doe', 'password123')
   `;
-  db.run(initialUser, function(err) {
+
+  db.run(initialUser, function (err) {
     if (err && err.message.includes('SQLITE_CONSTRAINT')) {
       // The initial user already exists, no need to insert again
       return;
@@ -41,16 +44,63 @@ db.serialize(() => {
       console.error('Error inserting initial user:', err.message);
     }
   });
+
+  // Drop and recreate housing table to fix schema issue
+  db.run(`
+    DROP TABLE IF EXISTS housing
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS housing (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      image TEXT,
+      title TEXT,
+      details TEXT,
+      price TEXT,
+      rating REAL,
+      reviews INTEGER
+    )
+  `);
+
+  // Insert predefined housing data
+  const initialHousingData = `
+    INSERT INTO housing (image, title, details, price, rating, reviews)
+    VALUES
+     ('src/assets/covenantGarden.png', 'Covent Garden Sta. Mesa Condo for Rent near PUP & UERM', '4-6 guests · Entire Condo · 6 beds · Shared bath · Wifi · Kitchen · Free Parking', 'Php 5,680 /month', 5.0, 318),
+    ('src/assets/elpueblocondo.png', 'El Pueblo Condo For Rent', '4-6 persons · Entire Room · 4 beds · 1 bath · Wifi · Kitchen', 'Php 6,755 /month', 5.0, 318)
+`;
+
+  db.run(initialHousingData, function (err) {
+    if (err && err.message.includes('SQLITE_CONSTRAINT')) {
+      // The initial housing data already exists, no need to insert again
+      return;
+    } else if (err) {
+      console.error('Error inserting initial housing data:', err.message);
+    }
+  });
+});
+
+// Endpoint to fetch housing data
+app.get('/api/housing', (req, res) => {
+  const query = `
+    SELECT * FROM housing
+  `;
+  db.all(query, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows); // Send housing data as JSON response
+  });
 });
 
 // Register user endpoint
-app.post('/register', (req, res) => {
+app.post('/api/register', (req, res) => {
   const { fullName, email, university, socialStatus, phoneNumber, username, password } = req.body;
   const query = `
     INSERT INTO users (fullName, email, university, socialStatus, phoneNumber, username, password)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
-  db.run(query, [fullName, email, university, socialStatus, phoneNumber, username, password], function(err) {
+  db.run(query, [fullName, email, university, socialStatus, phoneNumber, username, password], function (err) {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -59,7 +109,7 @@ app.post('/register', (req, res) => {
 });
 
 // Login endpoint
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const query = `
     SELECT * FROM users WHERE username = ? AND password = ?
@@ -76,6 +126,7 @@ app.post('/login', (req, res) => {
   });
 });
 
+// Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

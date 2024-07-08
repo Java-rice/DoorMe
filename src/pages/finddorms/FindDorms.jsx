@@ -150,56 +150,6 @@ const FindDorms = () => {
     }
   };
 
-  const dummyListings = [
-    {
-      id: 1,
-      image: covenantGarden,
-      title: "Covent Garden Sta. Mesa Condo for Rent near PUP & UERM",
-      details:
-        "4-6 guests · Entire Condo · 6 beds · Shared bath · Wifi · Kitchen · Free Parking",
-      price: "Php 5,680 /month",
-      rating: 5.0,
-      reviews: 318,
-    },
-    {
-      id: 2,
-      image: elpueblo,
-      title: "El Pueblo Condo For Rent",
-      details: "4-6 persons · Entire Room · 4 beds · 1 bath · Wifi · Kitchen",
-      price: "Php 6,755 /month",
-      rating: 5.0,
-      reviews: 318,
-    },
-    {
-      id: 3,
-      image: elpueblo,
-      title: "El Pueblo Condo For Rent",
-      details: "4-6 persons · Entire Room · 4 beds · 1 bath · Wifi · Kitchen",
-      price: "Php 6,755 /month",
-      rating: 5.0,
-      reviews: 318,
-    },
-    {
-      id: 4,
-      image: elpueblo,
-      title: "El Pueblo Condo For Rent",
-      details: "4-6 persons · Entire Room · 4 beds · 1 bath · Wifi · Kitchen",
-      price: "Php 6,755 /month",
-      rating: 5.0,
-      reviews: 318,
-    },
-    {
-      id: 5,
-      image: elpueblo,
-      title: "El Pueblo Condo For Rent",
-      details: "4-6 persons · Entire Room · 4 beds · 1 bath · Wifi · Kitchen",
-      price: "Php 6,755 /month",
-      rating: 5.0,
-      reviews: 318,
-    },
-    // Add more dummy listings as needed
-  ];
-
   return (
     <div className="w-full font-poppins pt-[10%] bg-blue-50 min-h-screen">
       <main className="max-w-7xl mx-auto py-8 px-4">
@@ -265,9 +215,7 @@ const FindDorms = () => {
             className="lg:w-1/2 overflow-y-auto"
             style={{ maxHeight: "600px" }}
           >
-            {dummyListings.map((listing) => (
-              <ListingBesideMapCards key={listing.id} {...listing} />
-            ))}
+            <ListingBesideMapCards />
           </div>
         </div>
 
