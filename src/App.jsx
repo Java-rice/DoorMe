@@ -14,6 +14,7 @@ import TermsOfService from "./pages/termsofservice/Termsofservice";
 import PrivacyPolicy from "./pages/privacypolicy/Privacypolicy";
 import CookiePolicy from "./pages/cookiepolicy/Cookiepolicy";
 import SafetyGuidelines from "./pages/safetyguidelines/Safetyguidelines";
+import ViewDorm from "./pages/viewdorm/ViewDorm";
 import FindDorms from "./pages/finddorms/FindDorms";
 import "./App.css";
 
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
           <Route path="/CookiePolicy" element={<CookiePolicy />} />
           <Route path="/SafetyGuidelines" element={<SafetyGuidelines />} />
+          <Route path="/ViewDorm" element={<ViewDorm />} />
           <Route path="/FindDorms" element={<FindDorms />} />
           <Route path="/Success" element={<Success />} />
         </Routes>

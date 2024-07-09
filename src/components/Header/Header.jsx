@@ -4,6 +4,7 @@ import { NavLink, Link, useNavigate } from "react-router-dom";
 import Logo from "../logo/Logo";
 import { Button } from "../buttons/Button";
 import "./Header.css";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const Header = () => {
   const [clicked, setClicked] = useState(false);
@@ -128,23 +129,28 @@ const Header = () => {
               {isLoggedIn ? (
                 <>
                   <li className="text-base font-bold font-sans cursor-pointer">
-                    <Button variant="auth" onClick={handleLogout}>
-                      Logout
-                    </Button>
+                    <NavLink
+                      to="/Profile"
+                      activeClassName="text-[#0077B5]"
+                      className="flex items-center hover:text-[#0077B5] transition duration-300 ease-in-out"
+                    >
+                      Profile
+                      <AccountCircleIcon className="ml-1" />
+                    </NavLink>
                   </li>
                 </>
               ) : (
                 <>
                   <li className="text-base font-bold font-sans cursor-pointer">
                     <Button variant="clear">
-                      <NavLink to="/Login" activeClassName="text-[#311B92]">
+                      <NavLink to="/Login" activeClassName="text-[#0077B5]">
                         Login
                       </NavLink>
                     </Button>
                   </li>
                   <li className="text-base font-bold font-sans cursor-pointer">
                     <Button variant="dark">
-                      <NavLink to="/Register" activeClassName="text-[#311B92]">
+                      <NavLink to="/Register" activeClassName="text-[#0077B5]">
                         Register
                       </NavLink>
                     </Button>
@@ -198,9 +204,14 @@ const Header = () => {
                 {isLoggedIn ? (
                   <>
                     <li className="text-base font-bold font-sans cursor-pointer">
-                      <Button variant="auth" onClick={handleLogout}>
-                        Logout
-                      </Button>
+                    <NavLink
+                      to="/Profile"
+                      activeClassName="text-[#0077B5]"
+                      className="flex items-center hover:text-[#311B92] transition duration-300 ease-in-out"
+                    >
+                      Profile
+                      <AccountCircleIcon className="ml-1" />
+                    </NavLink>
                     </li>
                   </>
                 ) : (
