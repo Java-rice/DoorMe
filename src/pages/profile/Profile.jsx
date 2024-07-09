@@ -91,7 +91,9 @@ const Profile = () => {
             </div>
             <div className="info-item">
               <span className="info-label">Mobile Number</span>
-              {user && <h1 className="flex-1 text-right mr-4">{user.phone}</h1>}
+              {user && (
+                <h1 className="flex-1 text-right mr-4">{user.phoneNumber}</h1>
+              )}
               <span className="material-icons edit-icon">edit</span>
             </div>
             <div className="info-item">
