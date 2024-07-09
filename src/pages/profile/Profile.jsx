@@ -1,14 +1,24 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Profile.css";
+
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // This state should be managed globally or passed as props from a global state management solution like Redux
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
 
   const handleLogout = () => {
-    // Perform any logout logic here (e.g., clear session, cookies, etc.)
-    // For demonstration, just navigate to the landing page ("/")
-    navigate("/");
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    navigate('/');
   };
 
   return (
