@@ -10,6 +10,7 @@ import backgroundImage from "../../assets/FindBg.png";
 import mapLogo from "../../assets/mapLogo.png";
 import logoImage from "../../assets/LogoImage.png";
 import housingMap from "../../assets/Housing-Map.png";
+import universityMap from "../../assets/University-Map.png";
 import FilterHome from "../../components/filterhome/FilterHome"; // Import the new FilterHome component
 
 const FindDorms = () => {
@@ -74,7 +75,7 @@ const FindDorms = () => {
       const initialMarkerElement = document.createElement("div");
       initialMarkerElement.style.width = "40px";
       initialMarkerElement.style.height = "40px";
-      initialMarkerElement.style.backgroundImage = `url(${logoImage})`; // Use your mapLogo path here
+      initialMarkerElement.style.backgroundImage = `url(${universityMap})`; // Use your mapLogo path here
       initialMarkerElement.style.backgroundSize = "cover";
       initialMarkerElement.style.cursor = "pointer";
 
@@ -107,7 +108,7 @@ const FindDorms = () => {
     }
 
     return () => map && map.remove();
-  }, [map]);
+  }, []);
 
   useEffect(() => {
     if (map && fromInput && universityCoordinates[fromInput]) {
