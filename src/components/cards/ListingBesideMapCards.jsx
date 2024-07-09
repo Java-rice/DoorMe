@@ -6,16 +6,15 @@ const ListingBesideMapCards = () => {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
-    // Fetch housing data from API endpoint
     axios
       .get("http://localhost:5000/api/housing")
       .then((response) => {
-        setListings(response.data); // Update state with fetched data
+        setListings(response.data);
       })
       .catch((error) => {
         console.error("Error fetching housing data:", error);
       });
-  }, []); // Empty dependency array ensures this effect runs only once
+  }, []);
 
   return (
     <>

@@ -2,23 +2,32 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Profile.css";
 
-
 const Profile = () => {
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This state should be managed globally or passed as props from a global state management solution like Redux
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("user") !== null
+  );
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      setIsLoggedIn(true);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
     }
   }, []);
 
-
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
-    navigate('/');
+    navigate("/");
+  };
+
+  const getAccountType = () => {
+    if (user) {
+      return user.hasOwnProperty("university") ? "Renter" : "Landowner";
+    }
+    return "";
   };
 
   return (
@@ -61,27 +70,33 @@ const Profile = () => {
               alt="User Profile Picture"
             />
             <button className="change-picture">Change Picture</button>
-            <h1 className="profile-name">Welcome, Kurt Patrick!</h1>
+            {user && (
+              <h1 className="text-xl font-semibold mt-4">
+                Welcome, {user.fullName}!
+              </h1>
+            )}
           </div>
           <div className="profile-info">
             <div className="info-item">
               <span className="info-label">Name</span>
-              <span className="info-value">Kurt Patrick Peroche</span>
+              {user && (
+                <h1 className="flex-1 text-right mr-4">{user.fullName}</h1>
+              )}
               <span className="material-icons edit-icon">edit</span>
             </div>
             <div className="info-item">
               <span className="info-label">Email Address</span>
-              <span className="info-value">kurpatper@gmail.com</span>
+              {user && <h1 className="flex-1 text-right mr-4">{user.email}</h1>}
               <span className="material-icons edit-icon">edit</span>
             </div>
             <div className="info-item">
               <span className="info-label">Mobile Number</span>
-              <span className="info-value">09987562853</span>
+              {user && <h1 className="flex-1 text-right mr-4">{user.phone}</h1>}
               <span className="material-icons edit-icon">edit</span>
             </div>
             <div className="info-item">
               <span className="info-label">Account Type</span>
-              <span className="info-value">Renter</span>
+              <span className="flex-1 text-right mr-4">{getAccountType()}</span>
             </div>
           </div>
         </div>

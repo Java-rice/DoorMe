@@ -8,7 +8,7 @@ function Login({ setIsLoggedIn }) {
   const [password, setPassword] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [loginError, setLoginError] = useState('');
+  const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
 
   const handleUsernameChange = (e) => {
@@ -36,9 +36,12 @@ function Login({ setIsLoggedIn }) {
 
     if (username && password) {
       try {
-        const response = await axios.post('http://localhost:5000/login', { username, password });
+        const response = await axios.post("http://localhost:5000/api/login", {
+          username,
+          password,
+        });
         if (response.data.message === "Login successful") {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem("user", JSON.stringify(response.data.user));
           navigate("/Home");
           window.location.reload();
         }
@@ -46,7 +49,7 @@ function Login({ setIsLoggedIn }) {
         if (error.response && error.response.status === 400) {
           setLoginError("Invalid username or password");
         } else {
-          console.error('There was an error logging in!', error);
+          console.error("There was an error logging in!", error);
         }
       }
     }
