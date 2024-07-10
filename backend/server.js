@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 const dbPath = path.resolve(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
 
-// Create users table if it doesn't exist
+// Create tables if they don't exist
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -26,6 +26,20 @@ db.serialize(() => {
       phoneNumber TEXT,
       username TEXT UNIQUE,
       password TEXT
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS housing (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      image TEXT,
+      title TEXT,
+      details TEXT,
+      price TEXT,
+      rating REAL,
+      reviews INTEGER,
+      latitude REAL,
+      longitude REAL
     )
   `);
 
@@ -44,25 +58,6 @@ db.serialize(() => {
     }
   });
 
-  // Drop and recreate housing table to fix schema issue
-  db.run(`
-    DROP TABLE IF EXISTS housing
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS housing (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      image TEXT,
-      title TEXT,
-      details TEXT,
-      price TEXT,
-      rating REAL,
-      reviews INTEGER,
-      latitude REAL,
-      longitude REAL
-    )
-  `);
-
   // Insert predefined housing data
   const initialHousingData = `
     INSERT INTO housing (image, title, details, price, rating, reviews, latitude, longitude)
@@ -79,6 +74,45 @@ db.serialize(() => {
       console.error('Error inserting initial housing data:', err.message);
     }
   });
+
+  // Create universities table and insert predefined coordinates
+  db.run(`
+    CREATE TABLE IF NOT EXISTS universities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT UNIQUE,
+      latitude REAL,
+      longitude REAL
+    )
+  `);
+
+  const universityCoordinates = {
+    "Adamson University": [120.986, 14.6042],
+    "Ateneo de Manila University": [121.0777, 14.6407],
+    "De La Salle University": [120.9932, 14.5648],
+    "De La Salle-College of Saint Benilde": [120.9951, 14.5636],
+    "National University, Philippines": [120.9946, 14.6043],
+    "Polytechnic University of the Philippines": [121.0108, 14.5979],
+    "University of Santo Tomas": [120.9896, 14.6093],
+    "University of the Philippines Diliman": [121.0657, 14.6537],
+    "University of the Philippines Manila": [120.9918, 14.5806],
+    "University of the Philippines System": [121.0657, 14.6537]
+  };
+
+  const insertUniversityQuery = `
+    INSERT INTO universities (name, latitude, longitude)
+    VALUES (?, ?, ?)
+  `;
+
+  for (const [name, coords] of Object.entries(universityCoordinates)) {
+    db.run(insertUniversityQuery, [name, coords[1], coords[0]], function (err) {
+      if (err && err.message.includes('SQLITE_CONSTRAINT')) {
+        // The university already exists, no need to insert again
+        return;
+      } else if (err) {
+        console.error(`Error inserting university ${name}:`, err.message);
+      }
+    });
+  }
 });
 
 // Endpoint to fetch all housing data

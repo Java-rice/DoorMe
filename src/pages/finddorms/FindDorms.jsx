@@ -19,19 +19,44 @@ const FindDorms = () => {
   const [user, setUser] = useState(null);
   const [marker, setMarker] = useState(null);
   const [initialCenter, setInitialCenter] = useState(null);
+  const [universities, setUniversities] = useState({});
 
-  const universityCoordinates = {
-    "Adamson University": [120.986, 14.6042],
-    "Ateneo de Manila University": [121.0777, 14.6407],
-    "De La Salle University": [120.9932, 14.5648],
-    "De La Salle-College of Saint Benilde": [120.9951, 14.5636],
-    "National University, Philippines": [120.9946, 14.6043],
-    "Polytechnic University of the Philippines": [121.0108, 14.5979],
-    "University of Santo Tomas": [120.9896, 14.6093],
-    "University of the Philippines Diliman": [121.0657, 14.6537],
-    "University of the Philippines Manila": [120.9918, 14.5806],
-    "University of the Philippines System": [121.0657, 14.6537],
-  };
+  useEffect(() => {
+    mapboxgl.accessToken =
+      "pk.eyJ1IjoicGVybWFya3kiLCJhIjoiY2x5MW5lNTJzMHRkczJrcHo2NmprZzMwbSJ9.3vlFP5qZY7YBVQcjul9GIg";
+
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setFromInput(parsedUser.university);
+    }
+
+    // Fetch universities data
+    axios
+      .get("http://localhost:5000/api/universities")
+      .then((response) => {
+        const fetchedUniversities = {};
+        response.data.forEach((university) => {
+          fetchedUniversities[university.name] = [
+            university.longitude,
+            university.latitude,
+          ];
+        });
+        setUniversities(fetchedUniversities);
+      })
+      .catch((error) => console.error("Error fetching universities:", error));
+  }, []);
+
+  useEffect(() => {
+    if (map && fromInput && universities[fromInput]) {
+      const newCenter = universities[fromInput];
+      map.setMaxBounds(null);
+      map.setZoom(13);
+      marker.setLngLat(newCenter);
+      map.setCenter(newCenter);
+    }
+  }, [fromInput, map, universities]);
 
   useEffect(() => {
     mapboxgl.accessToken =
@@ -45,14 +70,10 @@ const FindDorms = () => {
     }
 
     const initializeMap = () => {
-      const initialCenter =
-        universityCoordinates[JSON.parse(storedUser).university];
-      setInitialCenter(initialCenter);
-
       const mapInstance = new mapboxgl.Map({
         container: "map",
         style: "mapbox://styles/mapbox/streets-v11",
-        center: initialCenter,
+        center: initialCenter || [121.0108, 14.5979], // Default center if not initialized
         zoom: 13,
         minZoom: 13,
       });
@@ -75,7 +96,7 @@ const FindDorms = () => {
       initialMarkerElement.style.cursor = "pointer";
 
       const initialMarker = new mapboxgl.Marker(initialMarkerElement)
-        .setLngLat(initialCenter)
+        .setLngLat(initialCenter || [121.0108, 14.5979]) // Default marker position if not initialized
         .addTo(mapInstance);
       setMarker(initialMarker);
 
@@ -110,41 +131,7 @@ const FindDorms = () => {
     }
 
     return () => map && map.remove();
-  }, []);
-
-  useEffect(() => {
-    if (map && fromInput && universityCoordinates[fromInput]) {
-      const newCenter = universityCoordinates[fromInput];
-      setInitialCenter(initialCenter);
-      map.setMaxBounds(null);
-      map.setZoom(12);
-      marker.setLngLat(newCenter);
-      map.setCenter(newCenter);
-      map.setMaxBounds(map.getBounds());
-    }
-  }, [fromInput, map]);
-
-  const haversineDistance = (coords1, coords2) => {
-    const toRad = (value) => (value * Math.PI) / 180;
-
-    const R = 6371; // Radius of the Earth in kilometers
-    const lat1 = toRad(coords1[1]);
-    const lon1 = toRad(coords1[0]);
-    const lat2 = toRad(coords2[1]);
-    const lon2 = toRad(coords2[0]);
-
-    const dLat = lat2 - lat1;
-    const dLon = lon2 - lon1;
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; // Distance in kilometers
-  };
-
-  let distanceMarker;
+  }, [initialCenter]);
 
   const fetchRoute = async (mapInstance, fromCoordinates, toCoordinates) => {
     try {
@@ -187,8 +174,8 @@ const FindDorms = () => {
       }
 
       // Remove the existing marker if it exists
-      if (distanceMarker) {
-        distanceMarker.remove();
+      if (marker) {
+        marker.remove();
       }
 
       // Create a custom marker element
@@ -205,7 +192,7 @@ const FindDorms = () => {
       );
 
       // Create a new marker with the custom element and set the popup
-      distanceMarker = new mapboxgl.Marker(el)
+      const distanceMarker = new mapboxgl.Marker(el)
         .setLngLat(midPoint)
         .setPopup(popup)
         .addTo(mapInstance);
@@ -233,7 +220,7 @@ const FindDorms = () => {
                 <option value="" disabled>
                   Select University
                 </option>
-                {Object.keys(universityCoordinates).map((option) => (
+                {Object.keys(universities).map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
