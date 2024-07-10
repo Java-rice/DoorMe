@@ -123,43 +123,52 @@ const FindDorms = () => {
 
   const fetchRoute = async (mapInstance, fromCoordinates, toCoordinates) => {
     try {
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${fromCoordinates[0]},${fromCoordinates[1]};${toCoordinates[0]},${toCoordinates[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${fromCoordinates[0]},${fromCoordinates[1]};${toCoordinates[0]},${toCoordinates[1]}?geometries=geojson&steps=true&overview=full&access_token=${mapboxgl.accessToken}`;
 
       const response = await fetch(url);
       const data = await response.json();
+
+      if (!data.routes || data.routes.length === 0) {
+        throw new Error("No routes found");
+      }
 
       // Extract the route geometry and distance from the response
       const route = data.routes[0].geometry;
       const distance = data.routes[0].distance; // distance in meters
 
-      // Update or add the route layer on the map
+      // Remove existing route layer if it exists
+      if (mapInstance.getLayer("route")) {
+        mapInstance.removeLayer("route");
+      }
+
+      // Remove existing route source if it exists
       if (mapInstance.getSource("route")) {
-        mapInstance.getSource("route").setData({
+        mapInstance.removeSource("route");
+      }
+
+      // Add the route source and layer to the map
+      mapInstance.addSource("route", {
+        type: "geojson",
+        data: {
           type: "Feature",
           geometry: route,
-        });
-      } else {
-        mapInstance.addLayer({
-          id: "route",
-          type: "line",
-          source: {
-            type: "geojson",
-            data: {
-              type: "Feature",
-              geometry: route,
-            },
-          },
-          paint: {
-            "line-color": "#3887be",
-            "line-width": 5,
-          },
-        });
-      }
+        },
+      });
+
+      mapInstance.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        paint: {
+          "line-color": "#3887be",
+          "line-width": 5,
+        },
+      });
 
       // Display the distance in a popup on the map
       const popup = new mapboxgl.Popup({ offset: 25 })
         .setLngLat(toCoordinates)
-        .setHTML(`<p>Distance: ${distance.toFixed(2)} meters</p>`)
+        .setHTML(`<p>Distance: ${(distance / 1000).toFixed(2)} km</p>`)
         .addTo(mapInstance);
     } catch (error) {
       console.error("Error fetching the route:", error);
