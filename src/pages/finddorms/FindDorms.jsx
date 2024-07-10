@@ -5,20 +5,16 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import ListingBesideMapCards from "../../components/cards/ListingBesideMapCards";
-import backgroundImage from "../../assets/FindBg.png";
-import mapLogo from "../../assets/mapLogo.png";
-import logoImage from "../../assets/LogoImage.png";
 import housingMap from "../../assets/Housing-Map.png";
 import universityMap from "../../assets/University-Map.png";
 import distanceMap from "../../assets/Distance-Map.png";
-import FilterHome from "../../components/filterhome/FilterHome";
 
 const FindDorms = () => {
   const [map, setMap] = useState(null);
   const [fromInput, setFromInput] = useState("");
   const [user, setUser] = useState(null);
   const [marker, setMarker] = useState(null);
-  const [initialCenter, setInitialCenter] = useState(null);
+  const [initialCenter, setInitialCenter] = useState([121.0108, 14.5979]); // Default center
   const [universities, setUniversities] = useState({});
 
   useEffect(() => {
@@ -56,24 +52,14 @@ const FindDorms = () => {
       marker.setLngLat(newCenter);
       map.setCenter(newCenter);
     }
-  }, [fromInput, map, universities]);
+  }, [fromInput, map, universities, marker]);
 
   useEffect(() => {
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoicGVybWFya3kiLCJhIjoiY2x5MW5lNTJzMHRkczJrcHo2NmprZzMwbSJ9.3vlFP5qZY7YBVQcjul9GIg";
-
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setFromInput(parsedUser.university);
-    }
-
     const initializeMap = () => {
       const mapInstance = new mapboxgl.Map({
         container: "map",
         style: "mapbox://styles/mapbox/streets-v11",
-        center: initialCenter || [121.0108, 14.5979], // Default center if not initialized
+        center: initialCenter,
         zoom: 13,
         minZoom: 13,
       });
@@ -96,7 +82,7 @@ const FindDorms = () => {
       initialMarkerElement.style.cursor = "pointer";
 
       const initialMarker = new mapboxgl.Marker(initialMarkerElement)
-        .setLngLat(initialCenter || [121.0108, 14.5979]) // Default marker position if not initialized
+        .setLngLat(initialCenter)
         .addTo(mapInstance);
       setMarker(initialMarker);
 
@@ -116,10 +102,12 @@ const FindDorms = () => {
               .addTo(mapInstance);
 
             marker.getElement().addEventListener("click", () => {
-              fetchRoute(mapInstance, initialCenter, [
-                house.longitude,
-                house.latitude,
-              ]);
+              const currentCenter = mapInstance.getCenter();
+              fetchRoute(
+                mapInstance,
+                [currentCenter.lng, currentCenter.lat],
+                [house.longitude, house.latitude]
+              );
             });
           });
         })
@@ -131,7 +119,7 @@ const FindDorms = () => {
     }
 
     return () => map && map.remove();
-  }, [initialCenter]);
+  }, [initialCenter, map]);
 
   const fetchRoute = async (mapInstance, fromCoordinates, toCoordinates) => {
     try {
@@ -140,16 +128,11 @@ const FindDorms = () => {
       const response = await fetch(url);
       const data = await response.json();
 
-      // Extract the route from the response
+      // Extract the route geometry and distance from the response
       const route = data.routes[0].geometry;
+      const distance = data.routes[0].distance; // distance in meters
 
-      // Calculate the distance
-      const distance = data.routes[0].distance / 1000; // convert meters to kilometers
-
-      // Calculate the midpoint for displaying the distance
-      const midPointIndex = Math.floor(route.coordinates.length / 2);
-      const midPoint = route.coordinates[midPointIndex];
-
+      // Update or add the route layer on the map
       if (mapInstance.getSource("route")) {
         mapInstance.getSource("route").setData({
           type: "Feature",
@@ -173,28 +156,10 @@ const FindDorms = () => {
         });
       }
 
-      // Remove the existing marker if it exists
-      if (marker) {
-        marker.remove();
-      }
-
-      // Create a custom marker element
-      const el = document.createElement("div");
-      el.className = "custom-marker";
-      el.style.backgroundImage = `url(${distanceMap})`;
-      el.style.width = "30px";
-      el.style.height = "30px";
-      el.style.backgroundSize = "100%";
-
-      // Create a popup with the distance
-      const popup = new mapboxgl.Popup({ offset: 25 }).setText(
-        `Distance: ${distance.toFixed(2)} km`
-      );
-
-      // Create a new marker with the custom element and set the popup
-      const distanceMarker = new mapboxgl.Marker(el)
-        .setLngLat(midPoint)
-        .setPopup(popup)
+      // Display the distance in a popup on the map
+      const popup = new mapboxgl.Popup({ offset: 25 })
+        .setLngLat(toCoordinates)
+        .setHTML(`<p>Distance: ${distance.toFixed(2)} meters</p>`)
         .addTo(mapInstance);
     } catch (error) {
       console.error("Error fetching the route:", error);
