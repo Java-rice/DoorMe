@@ -198,6 +198,23 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+app.post('/api/change-password', (req, res) => {
+  const { userId, newPassword } = req.body;
+
+  const updateQuery = `
+    UPDATE users
+    SET password = ?
+    WHERE id = ?
+  `;
+
+  db.run(updateQuery, [newPassword, userId], function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ message: 'Password changed successfully' });
+  });
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

@@ -17,7 +17,7 @@ const ProfileContent = ({ user }) => {
         <Route path="BookmarksSection" element={<BookmarksSection />} />
         <Route path="VisitsSection" element={<VisitsSection />} />
         <Route path="ToReviewSection" element={<ToReviewSection />} />
-        <Route path="SecuritySection" element={<SecuritySection />} />
+        <Route path="SecuritySection" element={<SecuritySection user={user}/>} />
         <Route path="MessageSection" element={<MessageSection />} />
       </Routes>
     </div>
