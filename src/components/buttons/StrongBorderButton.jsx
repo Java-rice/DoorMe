@@ -1,9 +1,15 @@
 import React from 'react';
 
-const StrongBorderButton = ({children}) => {
+const StrongBorderButton = ({ onClick, children, isActive }) => {
   return (
-    <button className="px-4 py-2 rounded-full border border-black text-black bg-white" type="button">
-        {children}
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-full border transition-colors ${
+        isActive ? 'border-black bg-black text-white' : 'border-black text-black bg-white hover:bg-black hover:text-white'
+      }`}
+      style={{ transition: 'background-color 0.3s, color 0.3s' }}
+    >
+      {children}
     </button>
   );
 };

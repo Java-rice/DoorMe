@@ -1,4 +1,3 @@
-// src/components/header/Header.jsx
 import React, { useState, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import Logo from "../logo/Logo";
@@ -37,10 +36,8 @@ const Header = () => {
   }, [clicked]);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      setIsLoggedIn(true);
-    }
+    const user = JSON.parse(localStorage.getItem('user'));
+    setIsLoggedIn(!!user);
   }, []);
 
   const handleClick = () => {
@@ -89,16 +86,18 @@ const Header = () => {
         ) : (
           <div className="hidden lg:flex flex-grow items-center justify-end">
             <ul className="flex items-center space-x-8 text-gray-800">
-              <li className="text-base font-bold font-sans cursor-pointer">
-                <NavLink
-                  exact
-                  to="/"
-                  activeClassName="text-[#311B92]"
-                  className="hover:text-[#311B92] transition duration-300 ease-in-out"
-                >
-                  Home
-                </NavLink>
-              </li>
+              {!isLoggedIn && (
+                <li className="text-base font-bold font-sans cursor-pointer">
+                  <NavLink
+                    exact
+                    to="/"
+                    activeClassName="text-[#311B92]"
+                    className="hover:text-[#311B92] transition duration-300 ease-in-out"
+                  >
+                    Home
+                  </NavLink>
+                </li>
+              )}
               <li className="text-base font-bold font-sans cursor-pointer">
                 <NavLink
                   to="/About"
@@ -127,18 +126,16 @@ const Header = () => {
                 </NavLink>
               </li>
               {isLoggedIn ? (
-                <>
-                  <li className="text-base font-bold font-sans cursor-pointer">
-                    <NavLink
-                      to="/Profile"
-                      activeClassName="text-[#0077B5]"
-                      className="flex items-center hover:text-[#0077B5] transition duration-300 ease-in-out"
-                    >
-                      Profile
-                      <AccountCircleIcon className="ml-1" />
-                    </NavLink>
-                  </li>
-                </>
+                <li className="text-base font-bold font-sans cursor-pointer">
+                  <NavLink
+                    to="/Profile"
+                    activeClassName="text-[#0077B5]"
+                    className="flex items-center hover:text-[#0077B5] transition duration-300 ease-in-out"
+                  >
+                    Profile
+                    <AccountCircleIcon className="ml-1" />
+                  </NavLink>
+                </li>
               ) : (
                 <>
                   <li className="text-base font-bold font-sans cursor-pointer">
@@ -164,16 +161,18 @@ const Header = () => {
           <div className="fixed flex pb-10 px-10 w-1/2 top-20 right-0 items-center justify-center bg-white shadow-lg transition duration-300 ease-in-out z-20">
             <div className="relative w-[80%]">
               <ul className="flex flex-col mt-4 space-y-4 text-gray-800">
-                <li className="text-base font-bold font-sans cursor-pointer">
-                  <NavLink
-                    exact
-                    to="/"
-                    activeClassName="text-[#311B92]"
-                    className="hover:text-[#311B92] transition duration-300 ease-in-out"
-                  >
-                    Home
-                  </NavLink>
-                </li>
+                {!isLoggedIn && (
+                  <li className="text-base font-bold font-sans cursor-pointer">
+                    <NavLink
+                      exact
+                      to="/"
+                      activeClassName="text-[#311B92]"
+                      className="hover:text-[#311B92] transition duration-300 ease-in-out"
+                    >
+                      Home
+                    </NavLink>
+                  </li>
+                )}
                 <li className="text-base font-bold font-sans cursor-pointer">
                   <NavLink
                     to="/About"
@@ -202,8 +201,7 @@ const Header = () => {
                   </NavLink>
                 </li>
                 {isLoggedIn ? (
-                  <>
-                    <li className="text-base font-bold font-sans cursor-pointer">
+                  <li className="text-base font-bold font-sans cursor-pointer">
                     <NavLink
                       to="/Profile"
                       activeClassName="text-[#0077B5]"
@@ -212,8 +210,7 @@ const Header = () => {
                       Profile
                       <AccountCircleIcon className="ml-1" />
                     </NavLink>
-                    </li>
-                  </>
+                  </li>
                 ) : (
                   <>
                     <li className="text-base font-bold font-sans cursor-pointer">
