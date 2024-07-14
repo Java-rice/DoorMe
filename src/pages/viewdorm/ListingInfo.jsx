@@ -24,11 +24,15 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import DarkButtonLong from '../../components/buttons/DarkButtonLong';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Notification from './Notification'; // Adjust the path as needed
 
 const ListingInfo = () => {
     const [showAmenities, setShowAmenities] = useState(false);
-
     const [showMore, setShowMore] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
+    const [notification, setNotification] = useState(null);
+    const [message, setMessage] = useState('');
+    const [senderName, setSenderName] = useState('');
 
     const toggleShowMore = () => {
         setShowMore(!showMore);
@@ -49,10 +53,38 @@ const ListingInfo = () => {
 
     const MAPBOX_TOKEN = 'pk.eyJ1IjoicGVybWFya3kiLCJhIjoiY2x5MW5lNTJzMHRkczJrcHo2NmprZzMwbSJ9.3vlFP5qZY7YBVQcjul9GIg';
 
-    const [startDate, setStartDate] = useState(new Date());
+    const handleNotification = (message) => {
+        setNotification(message);
+        setTimeout(() => setNotification(null), 3000);
+    };
+
+    const handleReserve = () => {
+        handleNotification("Reservation is processed."); // Example notification, replace with actual logic
+        // Implement further logic for reservation, e.g., API call
+    };
+
+    const handleSendMessage = () => {
+        if (message && senderName) {
+            handleNotification("Message sent to owner.");
+            // Implement further logic for sending message, e.g., open message dialog
+            console.log(`Message: ${message}, Sent by: ${senderName}`);
+            // Reset message and senderName state after sending
+            setMessage('');
+            setSenderName('');
+        } else {
+            handleNotification("Please enter your name and message.");
+        }
+    };
+
+    const handleScheduleVisit = () => {
+        handleNotification("Schedule visit request processed."); // Example notification, replace with actual logic
+        // Implement further logic for scheduling visit, e.g., show visit scheduling form
+        console.log(`Scheduled visit for: ${startDate}`);
+    };
 
     return (
-        <div className="flex-auto max-w-6xl mx-auto ml-[132px] mt-[30px] p-6">
+        <div className="flex-auto max-w-6xl mx-auto mt-[30px] p-6">
+            {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
             <div className="flex justify-between items-center mb-4">
                 <div className="w-auto pb-4 border-b-2 border-gray-300">
                     <div className="flex items-start">
@@ -104,8 +136,6 @@ const ListingInfo = () => {
 
                     <div className="mb-4 mt-14">
                         <p className="text-black">
-                            Ugaliing magbasa bago magpunta!! Tandaan First come First serve Ibig sabihin open po kami sa lahat mapa walk-in or hindi.
-                            <br /><br />
                             {showMore ? (
                                 <>
                                     Two Rides going to SM Megamall and Robinson
@@ -129,9 +159,8 @@ const ListingInfo = () => {
                                     onClick={toggleShowMore}
                                 >
                                     Show more
-                                    <ArrowForwardIosOutlinedIcon  style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.5rem' }} />
+                                    <ArrowForwardIosOutlinedIcon style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.5rem' }} />
                                 </button>
-                                
                             )}
                             {showMore && (
                                 <button
@@ -139,104 +168,116 @@ const ListingInfo = () => {
                                     onClick={toggleShowMore}
                                 >
                                     Show less
-                                    <KeyboardArrowUpOutlinedIcon className="w-2 h-2"/>
+                                    <KeyboardArrowUpOutlinedIcon className="w-2 h-2 mr-2" />
                                 </button>
                             )}
                         </p>
                     </div>
 
-                    <div className="mb-6 mt-10">
-                        <h2 className="text-lg font-semibold">Where you'll sleep</h2>
-                        <div className="bg-gray-100 rounded-lg p-4 flex flex-col items-start mt-2">
-                            <img src={Bedroom} alt="Bedroom" className="w-auto h-auto rounded-lg mr-4 mt-1" />
-                            <div>
-                                <p className="font-semibold mt-2">Bedroom 1</p>
-                                <p className="text-gray-600">1 queen bed</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-10">
+                        {Object.entries(amenityIcons).slice(0, showAmenities ? undefined : 4).map(([key, value]) => (
+                            <div key={key} className="flex items-center">
+                                <img src={value} alt={key} className="w-10 h-10 mr-2" />
+                                <span>{key}</span>
                             </div>
-                        </div>
+                        ))}
                     </div>
-
-                    <div>
-                        <h2 className="text-lg font-semibold mb-2">What this place offers</h2>
-                        <div className={`grid grid-cols-2 gap-2 ${showAmenities ? '' : 'max-h-40 overflow-hidden'}`}>
-                            {['Garden view', 'Kitchen', 'Wifi', 'Pets allowed', 'Free washer - in building', 'Dryer', 'Central air conditioning', 'Security cameras on property', 'Refrigerator', 'Bicycles'].map((amenity) => (
-                                <div key={amenity} className="flex items-center text-black">
-                                    <img src={amenityIcons[amenity]} alt={`${amenity} icon`} className="h-5 w-5 text-black mr-2" />
-                                    <span>{amenity}</span>
-                                </div>
-                            ))}
+                    {!showAmenities && (
+                        <div className="mt-4">
+                            <button
+                                className="text-black underline"
+                                onClick={() => setShowAmenities(true)}
+                            >
+                                Show all amenities
+                                <ArrowForwardIosOutlinedIcon style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.5rem' }} />
+                            </button>
                         </div>
-                        <button onClick={() => setShowAmenities(!showAmenities)} className="text-black mt-4 outline outline-2 outline-black px-2 py-1 rounded-lg">
-                            {showAmenities ? 'Show less' : 'Show all 37 amenities'}
-                        </button>
+                    )}
+                    {showAmenities && (
+                        <div className="mt-4">
+                            <button
+                                className="text-black underline"
+                                onClick={() => setShowAmenities(false)}
+                            >
+                                Show less
+                                <KeyboardArrowUpOutlinedIcon className="w-2 h-2 mr-2" />
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="mt-8">
+                        <img src={Bedroom} alt="bedroom" className="w-full h-auto object-cover rounded-md" />
                     </div>
                 </div>
 
                 {/* Right Column */}
-                <div className="w-auto h-auto bg-white rounded-lg shadow-lg border-2 p-5 sticky top-6 ml-16 mr-[-102px] mt-[-98px]">
-                    <div className="flex flex-row items-center space-x-2">
-                        <h2 className="text-xl font-semibold mb-2 mr-[70px]">₱5,000 <span className="text-sm font-normal">/ month</span></h2>
-                        <div className="flex items-center">
-                            <StarBorderIcon style={{ fontSize: '20px', marginRight: '4px', color: 'black' }} />
-                            <span className="text-black">5.0 ·</span>
+                <div className="mt-2 p-4 border-2 border-[#D3D3D3] rounded-lg shadow-md">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="text-left">
+                            <h3 className="text-lg font-semibold">$9,000 / month</h3>
+                            <p className="text-gray-600">1 year contract</p>
                         </div>
-                        <span className="text-black underline">7 reviews</span>
-                    </div>
-                    
-                    <div className="outline outline-2 outline-black rounded-md mb-6 mt-4">
-                        <h4 className="text-xs font-semibold p-2">Notice!</h4>
-                        <p className="text-s font-normal p-2 text-gray-400">Owner of this listing was active 3 months ago. This listing was updated 5 months ago.</p>
-                    </div>
-
-                    <DarkButtonLong>Reserve</DarkButtonLong>
-                    
-                    <div className="border-b-2 border-b-gray-300 pb-5 mb-4">
-                        <h2 className="text-lg font-semibold mt-6 mb-2">Send an inquiry</h2>
-                        <div className="outline outline-2 rounded-lg mt-4 p-4">
-                            <h4 className="text-xs font-semibold mb-2">Your Name</h4>
-                            <input type="text" className="w-full outline-none border-none border-black rounded-lg" placeholder="Enter your name" />
-                        </div>
-
-                        <div className="border-r-2 border-b-2 mt-4 p-4">
-                            <h4 className="text-xs font-semibold mb-2">Your message to the Landlord</h4>
-                            <input type="text" className="w-full h-[150px] outline-none border-none border-black rounded-lg" placeholder="Type here..." />
+                        <div className="text-right">
+                            <div className="flex items-center">
+                                <StarBorderIcon style={{ color: 'gold', marginRight: '0.5rem' }} />
+                                <span>4.98 (190 reviews)</span>
+                            </div>
                         </div>
                     </div>
-                    <DarkButtonLong>Send Message</DarkButtonLong>
-
-                    <div>
-                        <h2 className="text-lg font-semibold mt-6 mb-2">Schedule a Visit</h2>
-                        <div className="p-4">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                inline
-                                calendarClassName="w-full pt-2 pl-11 border-none items-center"
-                                dayClassName={(date) =>
-                                    date.getDay() === 0 ? "text-red-600" : undefined
-                                }
-                            />
-                        </div>
-                    </div>
-                    <DarkButtonLong>Schedule Visit</DarkButtonLong>
-                </div>
-
-                {/* Location Map */}
-                <div className="mt-6 w-full">
-                    <h2 className="text-lg font-semibold mb-2">Location</h2>
-                    <div className="w-full rounded-lg overflow-hidden h-96">
+                    <div className="flex justify-center">
                         <Map
                             initialViewState={{
-                                longitude: 44.84584351960967,
-                                latitude: -0.5766123909338234,
-                                zoom: 14
+                                longitude: 121.064,
+                                latitude: 14.555,
+                                zoom: 15
                             }}
-                            style={{ width: '100%', height: '100%' }}
-                            mapStyle="mapbox://styles/mapbox/streets-v11"
+                            style={{ width: 300, height: 200 }}
+                            mapStyle="mapbox://styles/mapbox/streets-v12"
                             mapboxAccessToken={MAPBOX_TOKEN}
                         >
-                            <Marker longitude={44.84584351960967} latitude={-0.5766123909338234} color="red" />
+                            <Marker longitude={121.064} latitude={14.555} color="red" />
                         </Map>
+                    </div>
+                    <div className="mt-4">
+                        <label className="block text-black text-sm font-bold mb-2">
+                            Date for Visit
+                        </label>
+                        <DatePicker
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            className="border-2 border-[#D3D3D3] p-2 rounded-md w-full"
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <label className="block text-black text-sm font-bold mb-2">
+                            Your Name
+                        </label>
+                        <input
+                            type="text"
+                            value={senderName}
+                            onChange={(e) => setSenderName(e.target.value)}
+                            className="border-2 border-[#D3D3D3] p-2 rounded-md w-full"
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <label className="block text-black text-sm font-bold mb-2">
+                            Message to Owner
+                        </label>
+                        <textarea
+                            rows={4}
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="border-2 border-[#D3D3D3] p-2 rounded-md w-full"
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <DarkButtonLong onClick={handleReserve}>Reserve</DarkButtonLong>
+                    </div>
+                    <div className="mt-2">
+                        <DarkButtonLong onClick={handleSendMessage}>Message Owner</DarkButtonLong>
+                    </div>
+                    <div className="mt-2">
+                        <DarkButtonLong onClick={handleScheduleVisit}>Schedule Visit</DarkButtonLong>
                     </div>
                 </div>
             </div>
