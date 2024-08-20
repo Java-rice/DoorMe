@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/adc94c88-f9c7-4f3d-8948-f8b918f89a50)# DoorMe: A Web-Based Dormitory Search Platform for College Students
+# DoorMe: A Web-Based Dormitory Search Platform for College Students
 
 WEB DEVELOPMENT
 BSCS 3-3
