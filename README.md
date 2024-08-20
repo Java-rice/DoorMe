@@ -1,14 +1,14 @@
-# DoorMe: A Web-Based Dormitory Search Platform for College Students
+![image](https://github.com/user-attachments/assets/adc94c88-f9c7-4f3d-8948-f8b918f89a50)# DoorMe: A Web-Based Dormitory Search Platform for College Students
 
 WEB DEVELOPMENT
 BSCS 3-3
 
 ### MEMBERS
-- Abelligos, Adrian Rafael
-- Alpapara Nichole
-- Lagatuz, John Patrick
-- Peroche, John Mark
-- Torreda, Kurt Denver
+- [Abelligos, Adrian Rafael](https://github.com/STEREO-bit)
+- [Alpapara Nichole](https://github.com/k1miko)
+- [Lagatuz, John Patrick](https://github.com/jaypeepeep)
+- [Peroche, John Mark](https://github.com/Java-rice)
+- [Torreda, Kurt Denver](https://github.com/kurtdenvertorreda)
 
 ## Installation
 
